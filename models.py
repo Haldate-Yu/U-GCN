@@ -69,10 +69,7 @@ class SFGCN(nn.Module):
         self.SGAT3 = GAT(nfeat, nhid1, nhid2, dropout, alpha, nheads)
 
         self.dropout = dropout
-        self.a = nn.Parameter(torch.zeros(size=(nhid2, 1)))
-        nn.init.xavier_uniform_(self.a.data, gain=1.414)
         self.attention = Attention(nhid2)
-        self.tanh = nn.Tanh()
 
         self.MLP = nn.Sequential(
             nn.Linear(nhid2, nclass),
@@ -85,4 +82,4 @@ class SFGCN(nn.Module):
         emb3 = self.SGAT3(x, fadj)  # Special_GAT out3 -- fadj feature graph
         emb = torch.stack([emb1, emb2, emb3], dim=1)
         emb, att = self.attention(emb)
-        return emb, att, emb1, emb2, emb3
+        return self.MLP(emb), att, emb1, emb2, emb3
